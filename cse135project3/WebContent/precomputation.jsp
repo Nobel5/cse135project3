@@ -24,26 +24,28 @@ try {
 	stmt.execute("DROP TABLE IF EXISTS preMatrix");
 	
 	// Column headers
-	stmt.execute("CREATE TABLE preCols(state TEXT,product TEXT,category INTEGER,subtotal INTEGER)");
-	rs = stmt.executeQuery("SELECT states.name AS state"
-			+ " ,products.name AS product"
-			+ " ,products.cid AS category"
+	stmt.execute("CREATE TABLE precols(stateid INTEGER,productid INTEGER,subtotal INTEGER)");
+	rs = stmt.executeQuery(
+			"SELECT states.id AS stateid"
+			+ " ,products.id AS productid"
 			+ " ,SUM(sales.quantity*sales.price) AS subtotal"
 			+ " FROM"
 			+ " (sales JOIN users ON sales.uid=users.id) RIGHT OUTER JOIN"
 			+ " (states FULL OUTER JOIN products ON true) ON sales.pid=products.id AND users.state=states.name"
-			+ " GROUP BY states.name, products.name, products.cid"
-			+ " ORDER BY states.name"
+			+ " GROUP BY stateid, productid"
+			+ " ORDER BY stateid"
 			);
 	conn.commit();
-	PreparedStatement prst=conn.prepareStatement("INSERT INTO precols(state,product,category,subtotal) VALUES (?,?,?,?)");
+	PreparedStatement prst=conn.prepareStatement("INSERT INTO precols(stateid,productid,subtotal) VALUES (?,?,?)");
 	while(rs.next()) {
-		prst.setString(1,rs.getString("state"));
-		prst.setString(2,rs.getString("product"));
-		prst.setInt(3,rs.getInt("category"));
-		prst.setInt(4,rs.getInt("subtotal"));
+		prst.setInt(1,rs.getInt("stateid"));
+		prst.setInt(2,rs.getInt("productid"));
+		prst.setInt(3,rs.getInt("subtotal"));
 		prst.execute();
 	}
+	
+	// Row headers
+	
 	conn.commit();
 } catch(Exception e) {
   out.println(e.getMessage());
