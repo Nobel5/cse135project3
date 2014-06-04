@@ -19,9 +19,9 @@ try {
 	conn.setAutoCommit(false);
 	stmt = conn.createStatement();
 	
-	stmt.execute("DROP TABLE IF EXISTS preCols");
-	stmt.execute("DROP TABLE IF EXISTS preRows");
-	stmt.execute("DROP TABLE IF EXISTS preMatrix");
+	stmt.execute("DROP TABLE IF EXISTS precols");
+	stmt.execute("DROP TABLE IF EXISTS prerows");
+	stmt.execute("DROP TABLE IF EXISTS prematrix");
 	
 	// Column headers
 	stmt.execute("CREATE TABLE precols(stateid INTEGER,productid INTEGER,subtotal INTEGER)");
@@ -35,7 +35,8 @@ try {
 			+ " GROUP BY stateid, productid"
 			+ " ORDER BY stateid"
 			);
-	conn.commit();
+	conn.commit(); 
+	System.out.println();
 	PreparedStatement prst=conn.prepareStatement("INSERT INTO precols(stateid,productid,subtotal) VALUES (?,?,?)");
 	while(rs.next()) {
 		prst.setInt(1,rs.getInt("stateid"));

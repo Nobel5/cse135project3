@@ -114,14 +114,14 @@
 	<%
 		if (request.getParameter("rowtype")!=null) {
 			int sid;
-			String states=request.getParameter("states");
-			if(states.equals("All")){
+			String state = request.getParameter("states");
+			if(state.equals("All")){
 				sid=0;
 			}
 			else{
 				Statement search=conn.createStatement();
 				ResultSet rt=null;
-				rt=search.executeQuery("SELECT id FROM states WHERE states.name= \'"+states+"\"");
+				rt=search.executeQuery("SELECT id FROM states WHERE states.name= \'"+state+"\"");
 				if(rt.next()){
 					sid=rt.getInt("id");
 				}
@@ -130,7 +130,7 @@
 			
 			String rowtype = request.getParameter("rowtype");
 			int category = Integer.parseInt(request.getParameter("categories"));
-			String state = request.getParameter("states");
+			
 	%>
 	<table style="margin:auto" border=1>
 		<tr>
@@ -144,7 +144,7 @@
 					query += " AND products.cid="+category;
 				}
 				if (!"All".equals(state)) {
-					//query += " AND stateid='"+state+"'";
+					query += " AND stateid="+sid+"";
 				}
 				query += " GROUP BY products.id ORDER BY total DESC NULLS LAST LIMIT 10";
 				PreparedStatement prst = conn.prepareStatement(query);
@@ -159,6 +159,11 @@
 		</tr>
 		<%
 		// ROW HEADERS AND MATRIX
+			String preRows;
+			if(rowtype.equals("states")){
+				preRows="SELECT states.name, SUM(subtotal) FROM preRows";
+			}
+			String martrix;
 		%>
 	</table>
 	<%
