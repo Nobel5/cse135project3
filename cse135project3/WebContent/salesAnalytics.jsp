@@ -112,7 +112,22 @@
 		</table>
 	</form>
 	<%
-		if (request.getParameter("rowtype")!=null) {	
+		if (request.getParameter("rowtype")!=null) {
+			int sid;
+			String states=request.getParameter("states");
+			if(states.equals("All")){
+				sid=0;
+			}
+			else{
+				Statement search=conn.createStatement();
+				ResultSet rt=null;
+				rt=search.executeQuery("SELECT id FROM states WHERE states.name= \'"+states+"\"");
+				if(rt.next()){
+					sid=rt.getInt("id");
+				}
+			}
+			
+			
 			String rowtype = request.getParameter("rowtype");
 			int category = Integer.parseInt(request.getParameter("categories"));
 			String state = request.getParameter("states");
@@ -121,7 +136,7 @@
 		<tr>
 			<th></th>
 			<%
-				String query = "SELECT product, SUM(subtotal) AS total FROM precols WHERE true";
+				String query = "SELECT products.name, SUM(subtotal) AS total FROM precols join WHERE true";
 				if (category!=-1) {
 					query += " AND category="+category;
 				}
