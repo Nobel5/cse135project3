@@ -136,20 +136,23 @@
 		<tr>
 			<th></th>
 			<%
-				String query = "SELECT products.name, SUM(subtotal) AS total FROM precols join WHERE true";
+
+
+				String query = "SELECT products.name, SUM(subtotal) AS total"
+						+ " FROM precols JOIN products ON productid=products.id WHERE true";
 				if (category!=-1) {
-					query += " AND category="+category;
+					query += " AND products.cid="+category;
 				}
 				if (!"All".equals(state)) {
-					query += " AND state='"+state+"'";
+					//query += " AND stateid='"+state+"'";
 				}
-				query += " GROUP BY product ORDER BY total DESC NULLS LAST LIMIT 10";
+				query += " GROUP BY products.id ORDER BY total DESC NULLS LAST LIMIT 10";
 				PreparedStatement prst = conn.prepareStatement(query);
 				ResultSet rsCols = null;
 				rsCols = prst.executeQuery();
 				while(rsCols.next()) {
 			%>
-			<th><%=rsCols.getString("product") %><br><%=rsCols.getInt("total") %></th>
+			<th><%=rsCols.getString("name") %><br><%=rsCols.getInt("total") %></th>
 			<%
 				}
 			%>
