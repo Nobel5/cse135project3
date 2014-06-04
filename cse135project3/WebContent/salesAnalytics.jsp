@@ -161,21 +161,20 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT states.name, SUM(subtotal) AS total FROM states JOIN prerows on prerowsstates.sid=states.id";
+				preRows="SELECT states.name, SUM(subtotal) AS total FROM states LEFT OUTER JOIN prerows on prerowsstates.sid=states.id";
 			}
 			else{
-				preRows="SELECT users.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
+				preRows="SELECT users.name, SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
 				
 			}
 			if(category!=0){
-				preRows+=" JOIN categories on prerows.cid="+category+" ";
+				preRows+=" AND cid="+category+" ";
 			}
-			preRows+=" WHERE true ";
 			if(sid!=0&&rowtype.equals("states")){
-				preRows+=" AND prerowstates.sid= "+sid+" ";
+				preRows+=" WHERE prerowstates.sid= "+sid+" ";
 			}
 			else if(sid!=0){
-				preRows+=" AND users.state= \'"+state+"\' ";
+				preRows+=" WHERE users.state= \'"+state+"\' ";
 			}
 			if(rowtype.equals("states")){
 				preRows+= " GROUP BY states.id ORDER BY total DESC NULLS LAST LIMIT 20";
