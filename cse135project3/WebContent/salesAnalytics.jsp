@@ -139,13 +139,21 @@
 		<tr>
 			<th></th>
 			<%
+<<<<<<< HEAD
 				String query = "SELECT products.name, products.id, SUM(subtotal) AS total"
 						+ " FROM precols JOIN products ON productid=products.id WHERE true";
 				if (category!=0) {
 					query += " AND products.cid="+category;
 				}
+=======
+				String query = "SELECT products.name, SUM(subtotal) AS total"
+						+ " FROM precols RIGHT OUTER JOIN products ON productid=products.id";
+>>>>>>> 00b27e4b5b7a417d39dc09199fa1cd40c9fa675c
 				if (!"All".equals(state)) {
 					query += " AND stateid="+sid;
+				}
+				if (category!=0) {
+					query += " WHERE products.cid="+category;
 				}
 				query += " GROUP BY products.id ORDER BY total DESC NULLS LAST LIMIT 10";
 				Statement colHeaders = conn.createStatement();
@@ -165,21 +173,27 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
+<<<<<<< HEAD
 				preRows="SELECT states.name,states.id ,SUM(subtotal) AS total FROM states JOIN prerows on prerowsstates.sid=states.id";
 			}
 			else{
 				preRows="SELECT users.name,users.id, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
+=======
+				preRows="SELECT states.name, SUM(subtotal) AS total FROM states LEFT OUTER JOIN prerows on prerowsstates.sid=states.id";
+			}
+			else{
+				preRows="SELECT users.name, SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
+>>>>>>> 00b27e4b5b7a417d39dc09199fa1cd40c9fa675c
 				
 			}
 			if(category!=0){
-				preRows+=" JOIN categories on prerows.cid="+category+" ";
+				preRows+=" AND cid="+category+" ";
 			}
-			preRows+=" WHERE true ";
 			if(sid!=0&&rowtype.equals("states")){
-				preRows+=" AND prerowstates.sid= "+sid+" ";
+				preRows+=" WHERE prerowstates.sid= "+sid+" ";
 			}
 			else if(sid!=0){
-				preRows+=" AND users.state= \'"+state+"\' ";
+				preRows+=" WHERE users.state= \'"+state+"\' ";
 			}
 			if(rowtype.equals("states")){
 				preRows+= " GROUP BY states.id ORDER BY total DESC NULLS LAST LIMIT 20";

@@ -29,9 +29,7 @@ try {
 			+ "SELECT states.id AS stateid"
 			+ " ,products.id AS productid"
 			+ " ,SUM(sales.quantity*sales.price) AS subtotal"
-			+ " FROM"
-			+ " (sales JOIN users ON sales.uid=users.id) RIGHT OUTER JOIN"
-			+ " (states FULL OUTER JOIN products ON true) ON sales.pid=products.id AND users.state=states.name"
+			+ " FROM sales JOIN users ON sales.uid=users.id JOIN products ON sales.pid=products.id RIGHT OUTER JOIN states ON users.state=states.name"
 			+ " GROUP BY stateid, productid"
 			+ " ORDER BY stateid"
 			+ ");");
@@ -44,10 +42,7 @@ try {
 			+ "SELECT users.id AS userid"
 			+ " ,products.cid AS cid"
 			+ " ,SUM(sales.quantity*sales.price) AS subtotal"
-			+ " FROM"
-			+ " (users FULL OUTER JOIN categories ON true)"
-			+ " JOIN products ON products.cid=categories.id"
-			+ " LEFT OUTER JOIN sales ON sales.uid=users.id AND sales.pid=products.id"
+			+ " FROM users JOIN sales ON users.id=sales.uid JOIN products ON products.id=sales.pid JOIN categories ON products.cid=categories.id"
 			+ " GROUP BY userid, cid"
 			+ " ORDER BY userid"
 			+ ");");
