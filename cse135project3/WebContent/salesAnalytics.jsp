@@ -161,7 +161,7 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT users.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
+				preRows="SELECT states.name, SUM(subtotal) AS total FROM states JOIN prerows on prerowsstates.sid=states.id";
 			}
 			else{
 				preRows="SELECT users.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
