@@ -39,8 +39,8 @@ try {
 	System.out.println();
 	
 	// Row headers
-	stmt.execute("CREATE TABLE prerows(userid INTEGER,cid INTEGER,subtotal INTEGER)");
-	stmt.execute("INSERT INTO prerows(userid,cid,subtotal) ("
+	stmt.execute("CREATE TABLE prerows(uid INTEGER,cid INTEGER,subtotal INTEGER)");
+	stmt.execute("INSERT INTO prerows(uid,cid,subtotal) ("
 			+ "SELECT users.id AS userid"
 			+ " ,products.cid AS cid"
 			+ " ,SUM(sales.quantity*sales.price) AS subtotal"

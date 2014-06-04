@@ -83,7 +83,7 @@
 					<option	<%if ("Wisconsin".equals(request.getParameter("states"))) {%>selected <%}%>>Wisconsin</option>
 					<option <%if ("Wyoming".equals(request.getParameter("states"))) {%>selected <%}%>>Wyoming</option>
 				</select> Category <select id="categories" name="categories">
-					<option value=-1>All</option>
+					<option value=0>All</option>
 					<%
 						try {
 							ResultSet rsCat = null;
@@ -113,7 +113,7 @@
 	</form>
 	<%
 		if (request.getParameter("rowtype")!=null) {
-			int sid = 0;
+			int sid=0;
 			String state = request.getParameter("states");
 			if(state.equals("All")){
 				sid=0;
@@ -127,9 +127,10 @@
 				}
 			}
 			
-			
+			int category=0;
 			String rowtype = request.getParameter("rowtype");
-			int category = Integer.parseInt(request.getParameter("categories"));
+			if(request.getParameter("categories")!=null && request.getParameter("categories")!="0")
+				category = Integer.parseInt(request.getParameter("categories"));
 			
 	%>
 	<table style="margin:auto" border=1>
@@ -138,7 +139,7 @@
 			<%
 				String query = "SELECT products.name, SUM(subtotal) AS total"
 						+ " FROM precols JOIN products ON productid=products.id WHERE true";
-				if (category!=-1) {
+				if (category!=0) {
 					query += " AND products.cid="+category;
 				}
 				if (!"All".equals(state)) {
@@ -160,9 +161,34 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT states.name, SUM(subtotal) FROM preRows";
+				preRows="SELECT users.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
 			}
+			else{
+				preRows="SELECT users.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
+				
+			}
+			if(category!=0){
+				preRows+=" JOIN categories on prerows.cid="+category+" ";
+			}
+			preRows+=" WHERE true ";
+			if(sid!=0&&rowtype.equals("states")){
+				preRows+=" AND prerowstates.sid= "+sid+" ";
+			}
+			else if(sid!=0){
+				preRows+=" AND users.state= \'"+state+"\' ";
+			}
+			if(rowtype.equals("states")){
+				preRows+= " GROUP BY states.id ORDER BY total DESC NULLS LAST LIMIT 20";
+			}
+			else{
+				preRows+= " GROUP BY users.id ORDER BY total DESC NULLS LAST LIMIT 20";
+			}
+			Statement fcol=conn.createStatement();
+			System.out.println("STATEMENT preRows:\n"+preRows);
+			ResultSet col=fcol.executeQuery(preRows);
+			
 			String martrix;
+
 		%>
 	</table>
 	<%
