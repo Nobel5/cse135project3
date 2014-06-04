@@ -139,16 +139,9 @@
 		<tr>
 			<th></th>
 			<%
-<<<<<<< HEAD
-				String query = "SELECT products.name, products.id, SUM(subtotal) AS total"
-						+ " FROM precols JOIN products ON productid=products.id WHERE true";
-				if (category!=0) {
-					query += " AND products.cid="+category;
-				}
-=======
+
 				String query = "SELECT products.name, SUM(subtotal) AS total"
 						+ " FROM precols RIGHT OUTER JOIN products ON productid=products.id";
->>>>>>> 00b27e4b5b7a417d39dc09199fa1cd40c9fa675c
 				if (!"All".equals(state)) {
 					query += " AND stateid="+sid;
 				}
