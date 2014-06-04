@@ -113,7 +113,7 @@
 	</form>
 	<%
 		if (request.getParameter("rowtype")!=null) {
-			int sid;
+			int sid=0;
 			String state = request.getParameter("states");
 			if(state.equals("All")){
 				sid=0;
@@ -127,9 +127,10 @@
 				}
 			}
 			
-			
+			int category;
 			String rowtype = request.getParameter("rowtype");
-			int category = Integer.parseInt(request.getParameter("categories"));
+			if(request.getParameter("categories")!=null)
+				category = Integer.parseInt(request.getParameter("categories"));
 			
 	%>
 	<table style="margin:auto" border=1>
@@ -161,8 +162,31 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT states.name, SUM(subtotal) FROM preRows";
+				preRows="SELECT states.name, SUM(subtotal) AS total FROM states JOIN prerows on prerowsstates.sid=states.id";
 			}
+			else{
+				preRows="SELECT user.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
+				
+			}
+			if(category!=null){
+				preRows+=" JOIN categories on prerows.cid="+category+" ";
+			}
+			preRows+=" WHERE true ";
+			if(sid!=0&&rowtype.equals("states")){
+				preRows+=" AND prerowstates.sid= "+sid+" ";
+			}
+			else if(sid!=0){
+				preRows+=" AND users.state= \'"+state+"\' ";
+			}
+			if(rowtype.equals("states")){
+				preRows+= " GROUP BY states.id ORDER BY total DESC NULLS LAST LIMIT 20";
+			}
+			else{
+				preRows+= " GROUP BY users.id ORDER BY total DESC NULLS LAST LIMIT 20";
+			}
+			Statement fcol=conn.createStatement();
+			ResultSet col=fcol.executeQuery(preRows);
+			
 			String martrix;
 		%>
 	</table>
