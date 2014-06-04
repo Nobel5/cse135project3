@@ -138,12 +138,12 @@
 			<th></th>
 			<%
 				String query = "SELECT products.name, SUM(subtotal) AS total"
-						+ " FROM precols JOIN products ON productid=products.id WHERE true";
-				if (category!=0) {
-					query += " AND products.cid="+category;
-				}
+						+ " FROM precols RIGHT OUTER JOIN products ON productid=products.id";
 				if (!"All".equals(state)) {
 					query += " AND stateid="+sid;
+				}
+				if (category!=0) {
+					query += " WHERE products.cid="+category;
 				}
 				query += " GROUP BY products.id ORDER BY total DESC NULLS LAST LIMIT 10";
 				Statement colHeaders = conn.createStatement();
