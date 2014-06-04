@@ -127,7 +127,7 @@
 				}
 			}
 			
-			int category;
+			int category=0;
 			String rowtype = request.getParameter("rowtype");
 			if(request.getParameter("categories")!=null)
 				category = Integer.parseInt(request.getParameter("categories"));
@@ -165,10 +165,10 @@
 				preRows="SELECT states.name, SUM(subtotal) AS total FROM states JOIN prerows on prerowsstates.sid=states.id";
 			}
 			else{
-				preRows="SELECT user.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
+				preRows="SELECT users.name, SUM(subtotal) AS total FROM users JOIN prerows on prerows.uid=users.id";
 				
 			}
-			if(category!=null){
+			if(category!=0){
 				preRows+=" JOIN categories on prerows.cid="+category+" ";
 			}
 			preRows+=" WHERE true ";
@@ -185,6 +185,7 @@
 				preRows+= " GROUP BY users.id ORDER BY total DESC NULLS LAST LIMIT 20";
 			}
 			Statement fcol=conn.createStatement();
+			System.out.println("STATEMENT preRows:\n"+preRows);
 			ResultSet col=fcol.executeQuery(preRows);
 			
 			String martrix;
