@@ -19,14 +19,14 @@ try {
 	conn.setAutoCommit(false);
 	stmt = conn.createStatement();
 	
-	stmt.execute("DROP TABLE IF EXISTS preCols");
-	stmt.execute("DROP TABLE IF EXISTS preRows");
-	stmt.execute("DROP TABLE IF EXISTS preMatrix");
+	stmt.execute("DROP TABLE IF EXISTS precols");
+	stmt.execute("DROP TABLE IF EXISTS prerows");
+	stmt.execute("DROP TABLE IF EXISTS prematrix");
 	
 	// Column headers
 	stmt.execute("CREATE TABLE precols(stateid INTEGER,productid INTEGER,subtotal INTEGER)");
-	rs = stmt.executeQuery(
-			"SELECT states.id AS stateid"
+	stmt.execute("INSERT INTO precols(stateid,productid,subtotal) ("
+			+ "SELECT states.id AS stateid"
 			+ " ,products.id AS productid"
 			+ " ,SUM(sales.quantity*sales.price) AS subtotal"
 			+ " FROM"
@@ -34,19 +34,25 @@ try {
 			+ " (states FULL OUTER JOIN products ON true) ON sales.pid=products.id AND users.state=states.name"
 			+ " GROUP BY stateid, productid"
 			+ " ORDER BY stateid"
-			);
-	conn.commit();
-	PreparedStatement prst=conn.prepareStatement("INSERT INTO precols(stateid,productid,subtotal) VALUES (?,?,?)");
-	while(rs.next()) {
-		prst.setInt(1,rs.getInt("stateid"));
-		prst.setInt(2,rs.getInt("productid"));
-		prst.setInt(3,rs.getInt("subtotal"));
-		prst.execute();
-	}
+			+ ");");
+	conn.commit(); 
+	System.out.println();
 	
 	// Row headers
-	
+	stmt.execute("CREATE TABLE prerows(userid INTEGER,cid INTEGER,subtotal INTEGER)");
+	stmt.execute("INSERT INTO prerows(userid,cid,subtotal) ("
+			+ "SELECT users.id AS userid"
+			+ " ,products.cid AS cid"
+			+ " ,SUM(sales.quantity*sales.price) AS subtotal"
+			+ " FROM"
+			+ " (users FULL OUTER JOIN categories ON true)"
+			+ " JOIN products ON products.cid=categories.id"
+			+ " LEFT OUTER JOIN sales ON sales.uid=users.id AND sales.pid=products.id"
+			+ " GROUP BY userid, cid"
+			+ " ORDER BY userid"
+			+ ");");
 	conn.commit();
+	
 } catch(Exception e) {
   out.println(e.getMessage());
 } finally {

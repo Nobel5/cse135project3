@@ -2,6 +2,7 @@
 DROP TABLE categories CASCADE;
 DROP TABLE products CASCADE;
 DROP TABLE sales CASCADE;
+DROP TABLE carts CASCADE;
 
 
 /**table 1: [entity] users**/
@@ -90,7 +91,6 @@ insert into states(name) values ('California');
 insert into states(name) values ('Colorado');
 insert into states(name) values ('Connecticut');
 insert into states(name) values ('Delaware');
-insert into states(name) values ('District of Columbia');
 insert into states(name) values ('Florida');
 insert into states(name) values ('Georgia');
 insert into states(name) values ('Hawaii');
