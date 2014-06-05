@@ -113,6 +113,8 @@
 	</form>
 	<%
 		if (request.getParameter("rowtype")!=null) {
+			int firstRow[]=new int[10];
+			int firstCol[]=new int[20];
 			int sid=0;
 			String state = request.getParameter("states");
 			if(state.equals("All")){
@@ -137,7 +139,8 @@
 		<tr>
 			<th></th>
 			<%
-				String query = "SELECT products.name, SUM(subtotal) AS total"
+
+				String query = "SELECT products.name,products.id, SUM(subtotal) AS total"
 						+ " FROM precols RIGHT OUTER JOIN products ON productid=products.id";
 				if (!"All".equals(state)) {
 					query += " AND stateid="+sid;
@@ -148,9 +151,14 @@
 				query += " GROUP BY products.id ORDER BY total DESC NULLS LAST LIMIT 10";
 				Statement colHeaders = conn.createStatement();
 				ResultSet rsCols = null;
-				System.out.println(query);
+				//System.out.println(query);
 				rsCols = colHeaders.executeQuery(query);
+				int k=0;
 				while(rsCols.next()) {
+					firstRow[k]=rsCols.getInt("id");
+					System.out.println("result set: "+rsCols.getInt("id"));
+					System.out.println("array: "+firstRow[k]);
+					k++;
 			%>
 			<th><%=rsCols.getString("name") %><br><%=rsCols.getInt("total") %></th>
 			<%
@@ -161,10 +169,11 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT states.name, SUM(subtotal) AS total FROM states LEFT OUTER JOIN prerows on prerowsstates.sid=states.id";
+				preRows="SELECT states.name,users.id, SUM(subtotal) AS total FROM states LEFT OUTER JOIN prerows on prerowsstates.sid=states.id";
 			}
 			else{
-				preRows="SELECT users.name, SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
+				preRows="SELECT users.name, users.id,SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
+
 				
 			}
 			if(category!=0){
@@ -182,11 +191,93 @@
 			else{
 				preRows+= " GROUP BY users.id ORDER BY total DESC NULLS LAST LIMIT 20";
 			}
-			Statement fcol=conn.createStatement();
+			Statement fcol=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+			        ResultSet.CONCUR_READ_ONLY);
 			System.out.println("STATEMENT preRows:\n"+preRows);
 			ResultSet col=fcol.executeQuery(preRows);
 			
 			String martrix;
+			//gets rows user id
+			for(int i=1;i<=20;i++){
+				if(col.next()){
+					firstCol[i-1]=col.getInt("id");
+				}
+			}
+			//rewins col to the start
+			while(col.previous()){
+				//System.out.println("duck");
+			}
+			int theMartix[][]=new int[20][10];
+			String matQuery="";
+			if(rowtype.equals("states")){
+				
+				
+			}
+			else{
+				matQuery+="SELECT uid,pid,SUM(subTotal) AS total FROM prematrix WHERE ";
+			}
+			matQuery+= "(TRUE ";
+			for(int i=0;i<10;i++){
+				if(firstRow[i]==0){
+					System.out.println("why does it get here i= "+i+" array= "+firstRow[i]);
+					break;
+					}
+				else{
+					matQuery+=" OR pid= "+firstRow[i];
+				}		
+			}
+			matQuery+=" ) AND ( TRUE";
+			for(int i=0;i<20;i++){
+				if(firstCol[i]==0)
+					break;
+				else{
+					matQuery+=" OR uid= "+firstCol[i];
+				}		
+			}
+			matQuery+=") GROUP BY uid,pid";
+			System.out.println("STATEMENT prematrix: \n"+matQuery);
+			ResultSet alpha=null;
+			Statement m=conn.createStatement();
+			alpha=m.executeQuery(matQuery);
+			//fills theMartix
+			while(alpha.next()){
+				int q=-1;
+				int t=-1;
+				for(int i=0;i<10;i++){
+					if(firstRow[i]==0){
+						break;
+					}
+					if(firstRow[i]==alpha.getInt("pid")){
+						q=i;
+					}
+				}
+				for(int i=0;i<20;i++){
+					if(firstCol[i]==0){
+						break;
+					}
+					if(firstCol[i]==alpha.getInt("uid")){
+						t=i;
+					}
+				}
+				if(t!=-1&&q!=-1)
+				theMartix[t][q]=alpha.getInt("total");
+			}
+			//creates the actul Table
+			int dino=0;//counts what row its on
+			while(col.next()){
+				%>
+				<tr>
+				<th><%=col.getString("name")%><br>(<%=col.getInt("total")%>)</th>				
+				<%
+				for(int i=0;i<10;i++){
+					%>
+					<td><%=theMartix[dino][i] %></td>
+					<%
+				}
+				dino++;
+				%></tr><%
+			}
+
 
 		%>
 	</table>

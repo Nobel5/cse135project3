@@ -39,8 +39,6 @@ if(session.getAttribute("name")!=null)
 				Statement stmt=null;
 				try
 				{
-					
-					
 					String  SQL="delete from sales where uid="+userID+";";
 					
 					try{Class.forName("org.postgresql.Driver");}catch(Exception e){System.out.println("Driver error");}
@@ -51,8 +49,52 @@ if(session.getAttribute("name")!=null)
 					stmt =conn.createStatement();
 				
 					try{
-					
 							conn.setAutoCommit(false);
+							// Update precomputation tables
+							String updateQuery =
+									"SELECT u.id uid,s.id sid,p.id pid,c.id cid,(a.quantity*a.price) total"
+									+ " FROM users u"
+									+ " JOIN sales a ON u.id=a.uid"
+									+ " JOIN products p ON p.id=a.pid"
+									+ " JOIN categories c ON p.cid=c.id"
+									+ " JOIN states s ON u.state=s.name"
+									+ " WHERE a.uid="+userID;
+							ResultSet salesUpdates = stmt.executeQuery(updateQuery);
+							Statement updater = conn.createStatement();
+							while(salesUpdates.next()) {
+								int uid = salesUpdates.getInt("uid");	// user id
+								int sid = salesUpdates.getInt("sid");	// states id
+								int pid = salesUpdates.getInt("pid");	// products id
+								int cid = salesUpdates.getInt("cid");	// categories id
+								int total = salesUpdates.getInt("total");	// total
+								// Update precols
+								System.out.println("UPDATING THE PRECOLS");
+								try {
+									String precols = "UPDATE precols SET subtotal=subtotal+"+total+" WHERE stateid="+sid+" AND productid="+pid;
+									updater.executeUpdate(precols);
+								} catch(SQLException e) {
+									String precols = "INSERT INTO precols(stateid,productid,subtotal) VALUES ("+sid+","+pid+","+total+")";
+									updater.executeUpdate(precols);
+								}
+								// Update prerows
+								System.out.println("UPATING THE PREROWS");
+								try {
+									String prerows = "UPDATE prerows SET subtotal=subtotal+"+total+" WHERE uid="+uid+" AND cid="+cid;
+									updater.executeUpdate(prerows);
+								} catch(SQLException e) {
+									String prerows = "INSERT INTO prerows(uid,cid,subtotal) VALUES ("+uid+","+cid+","+total+")";
+									updater.executeUpdate(prerows);
+								}
+								// Update the Martix
+								System.out.println("UPDATING THE PREMATRIX");
+								try {
+									String themartix = "UPDATE prematrix SET subtotal=subtotal+"+total+" WHERE uid="+uid+" AND pid="+pid;
+									updater.executeUpdate(themartix);
+								} catch(SQLException e) {
+									String themartix = "INSERT INTO prematrix(uid,pid,subtotal) VALUES ("+uid+","+pid+","+total+")";
+									updater.executeUpdate(themartix);
+								}
+							}
 							stmt.execute(SQL);
 							conn.commit();
 							conn.setAutoCommit(true);
@@ -61,6 +103,7 @@ if(session.getAttribute("name")!=null)
 					}
 					catch(Exception e)
 					{
+						out.println(e);
 						out.println("Fail! Please try again <a href=\"purchase.jsp\" target=\"_self\">Purchase page</a>.<br><br>");
 						
 					}
