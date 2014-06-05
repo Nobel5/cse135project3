@@ -210,7 +210,13 @@
 			int theMartix[][]=new int[20][10];
 			String matQuery="";
 			if(rowtype.equals("states")){
-				
+				matQuery+="SELECT states.id,pid,sub"+
+			"FROM ( "+
+						" SELECT sales.uid,sales.pid,SUM(sales.quantity*sales.price) AS sub "+
+			" FROM sales GROUP BY sales.uid,sales.pid "+
+						" ) AS subquery "+
+			" JOIN users ON users.id=uid RIGHT OUTER JOIN states ON "+
+						" users.state=states.name ";
 				
 			}
 			else{
@@ -231,10 +237,16 @@
 				if(firstCol[i]==0)
 					break;
 				else{
+					if(!rowtype.equals("states"))
 					matQuery+=" OR uid= "+firstCol[i];
+					else
+						matQuery+=" OR states.id= "+firstCol[i];
 				}		
 			}
+			if(!rowtype.equals("states"))
 			matQuery+=") GROUP BY uid,pid";
+			else
+				matQuery+=")";
 			System.out.println("STATEMENT prematrix: \n"+matQuery);
 			ResultSet alpha=null;
 			Statement m=conn.createStatement();
