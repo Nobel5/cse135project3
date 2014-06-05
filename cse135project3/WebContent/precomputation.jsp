@@ -33,6 +33,19 @@ try {
 			+ " GROUP BY stateid, productid"
 			+ " ORDER BY stateid"
 			+ ");");
+	System.out.println("1");
+	String query="INSERT INTO precols(productid,subtotal) ("
+			+ "SELECT products.id AS productid"
+			+ " ,SUM(sales.quantity*sales.price) AS subtotal"
+			+ " FROM sales JOIN users ON sales.uid=users.id JOIN products ON sales.pid=products.id RIGHT OUTER JOIN states ON users.state=states.name"
+			+ " GROUP BY productid"
+			+ ""
+			+ ");";
+			System.out.println("QUERY :\n"+query);
+	stmt.execute(query);
+	System.out.println("2");
+	stmt.execute("UPDATE precols  SET stateid=0 WHERE stateid is NULL");
+	System.out.println("3");
 	conn.commit(); 
 	System.out.println();
 	
@@ -46,12 +59,25 @@ try {
 			+ " GROUP BY userid, cid"
 			+ " ORDER BY userid"
 			+ ");");
+	query="INSERT INTO prerows(uid,subtotal) ("
+			+ "SELECT users.id AS userid"
+			+ ""
+			+ " ,SUM(sales.quantity*sales.price) AS subtotal"
+			+ " FROM users JOIN sales ON users.id=sales.uid JOIN products ON products.id=sales.pid JOIN categories ON products.cid=categories.id"
+			+ " GROUP BY userid"
+			+ ""
+			+ ");";
+	System.out.println(query);
+	stmt.execute(query);
+	query="UPDATE prerows  SET cid=0 WHERE cid is NULL";
+	stmt.execute(query);
 	conn.commit();
 
 	stmt.execute("CREATE TABLE prematrix(uid INTEGER,pid INTEGER,subtotal INTEGER)");
 	stmt.execute("INSERT INTO prematrix(uid,pid,subtotal) ("
 			+ "SELECT sales.uid,sales.pid,SUM(sales.quantity*sales.price) AS sub FROM sales GROUP BY sales.uid,sales.pid);");
 	conn.commit();
+	System.out.println("done");
 } catch(Exception e) {
   out.println(e.getMessage());
 } finally {

@@ -140,27 +140,30 @@
 			<th></th>
 			<%
 
-				String query = "SELECT products.name,products.id, SUM(subtotal) AS total"
+				String query = "SELECT products.name,products.id, subtotal"
 						+ " FROM precols RIGHT OUTER JOIN products ON productid=products.id";
 				if (!"All".equals(state)) {
+					query += " AND stateid="+sid;
+				}
+				else{
 					query += " AND stateid="+sid;
 				}
 				if (category!=0) {
 					query += " WHERE products.cid="+category;
 				}
-				query += " GROUP BY products.id ORDER BY total DESC NULLS LAST LIMIT 10";
+				query += " GROUP BY products.id,subtotal ORDER BY subtotal DESC NULLS LAST LIMIT 10";
 				Statement colHeaders = conn.createStatement();
 				ResultSet rsCols = null;
-				//System.out.println(query);
+				System.out.println("STATEMENT colheaders \n"+query);
 				rsCols = colHeaders.executeQuery(query);
 				int k=0;
 				while(rsCols.next()) {
 					firstRow[k]=rsCols.getInt("id");
-					System.out.println("result set: "+rsCols.getInt("id"));
-					System.out.println("array: "+firstRow[k]);
+					//System.out.println("result set: "+rsCols.getInt("id"));
+					//System.out.println("array: "+firstRow[k]);
 					k++;
 			%>
-			<th><%=rsCols.getString("name") %><br><%=rsCols.getInt("total") %></th>
+			<th><%=rsCols.getString("name") %><br><%=rsCols.getInt("subtotal") %></th>
 			<%
 				}
 			%>
@@ -172,12 +175,15 @@
 				preRows="SELECT states.name,states.id, SUM(subtotal) AS total FROM (states LEFT OUTER JOIN users ON states.name=users.state) LEFT OUTER JOIN prerows ON users.id=prerows.uid";
 			}
 			else{
-				preRows="SELECT users.name, users.id,SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
+				preRows="SELECT users.name, users.id,subtotal FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
 
 				
 			}
 			if(category!=0){
 				preRows+=" AND cid="+category+" ";
+			}
+			else{
+				preRows+=" AND cid= 0"+" ";
 			}
 			if(sid!=0&&rowtype.equals("states")){
 				preRows+=" WHERE states.id= "+sid+" ";
@@ -186,10 +192,10 @@
 				preRows+=" WHERE users.state= \'"+state+"\' ";
 			}
 			if(rowtype.equals("states")){
-				preRows+= " GROUP BY states.id ORDER BY total DESC NULLS LAST LIMIT 20";
+				preRows+= " GROUP BY states.id,subtotal ORDER BY subtotl DESC NULLS LAST LIMIT 20";
 			}
 			else{
-				preRows+= " GROUP BY users.id ORDER BY total DESC NULLS LAST LIMIT 20";
+				preRows+= " GROUP BY users.id,subtotal ORDER BY subtotal DESC NULLS LAST LIMIT 20";
 			}
 			Statement fcol=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 			        ResultSet.CONCUR_READ_ONLY);
@@ -220,7 +226,7 @@
 				
 			}
 			else{
-				matQuery+="SELECT uid,pid,SUM(subTotal) AS total FROM prematrix WHERE ";
+				matQuery+="SELECT uid,pid,subTotal FROM prematrix WHERE ";
 			}
 			matQuery+= "(TRUE ";
 			for(int i=0;i<10;i++){
@@ -244,7 +250,7 @@
 				}		
 			}
 			if(!rowtype.equals("states"))
-			matQuery+=") GROUP BY uid,pid";
+			matQuery+=") GROUP BY uid,pid,subtotal";
 			else
 				matQuery+=")";
 			System.out.println("STATEMENT prematrix: \n"+matQuery);
@@ -280,7 +286,7 @@
 				}
 				if(t!=-1&&q!=-1){
 				if(!rowtype.equals("states"))
-					theMartix[t][q]=alpha.getInt("total");
+					theMartix[t][q]+=alpha.getInt("subtotal");
 				else
 					theMartix[t][q]=alpha.getInt("sub");
 				}
@@ -290,7 +296,7 @@
 			while(col.next()){
 				%>
 				<tr>
-				<th><%=col.getString("name")%><br>(<%=col.getInt("total")%>)</th>				
+				<th><%=col.getString("name")%><br>(<%=col.getInt("subtotal")%>)</th>				
 				<%
 				for(int i=0;i<10;i++){
 					%>
