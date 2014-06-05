@@ -169,7 +169,7 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT states.name,users.id, SUM(subtotal) AS total FROM states LEFT OUTER JOIN prerows on prerowsstates.sid=states.id";
+				preRows="SELECT states.name,states.id, SUM(subtotal) AS total FROM (states LEFT OUTER JOIN users ON states.name=users.state) LEFT OUTER JOIN prerows ON users.id=prerows.uid";
 			}
 			else{
 				preRows="SELECT users.name, users.id,SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
@@ -180,7 +180,7 @@
 				preRows+=" AND cid="+category+" ";
 			}
 			if(sid!=0&&rowtype.equals("states")){
-				preRows+=" WHERE prerowstates.sid= "+sid+" ";
+				preRows+=" WHERE states.id= "+sid+" ";
 			}
 			else if(sid!=0){
 				preRows+=" WHERE users.state= \'"+state+"\' ";
