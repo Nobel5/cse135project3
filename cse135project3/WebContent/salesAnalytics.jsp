@@ -211,12 +211,12 @@
 			String matQuery="";
 			if(rowtype.equals("states")){
 				matQuery+="SELECT states.id,pid,sub"+
-			"FROM ( "+
+			" FROM ( "+
 						" SELECT sales.uid,sales.pid,SUM(sales.quantity*sales.price) AS sub "+
 			" FROM sales GROUP BY sales.uid,sales.pid "+
 						" ) AS subquery "+
 			" JOIN users ON users.id=uid RIGHT OUTER JOIN states ON "+
-						" users.state=states.name ";
+						" users.state=states.name WHERE";
 				
 			}
 			else{
@@ -267,12 +267,23 @@
 					if(firstCol[i]==0){
 						break;
 					}
+					if(!rowtype.equals("states")){
 					if(firstCol[i]==alpha.getInt("uid")){
 						t=i;
 					}
+					}
+					else{
+						if(firstCol[i]==alpha.getInt("id")){
+							t=i;
+						}
+					}
 				}
-				if(t!=-1&&q!=-1)
-				theMartix[t][q]=alpha.getInt("total");
+				if(t!=-1&&q!=-1){
+				if(!rowtype.equals("states"))
+					theMartix[t][q]=alpha.getInt("total");
+				else
+					theMartix[t][q]=alpha.getInt("sub");
+				}
 			}
 			//creates the actul Table
 			int dino=0;//counts what row its on
