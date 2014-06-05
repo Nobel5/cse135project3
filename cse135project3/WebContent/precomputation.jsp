@@ -47,7 +47,11 @@ try {
 			+ " ORDER BY userid"
 			+ ");");
 	conn.commit();
-	
+
+	stmt.execute("CREATE TABLE prematrix(uid INTEGER,pid INTEGER,subtotal INTEGER)");
+	stmt.execute("INSERT INTO prematrix(uid,pid,subtotal) ("
+			+ "SELECT sales.uid,sales.pid,SUM(sales.quantity*sales.price) AS sub FROM sales GROUP BY sales.uid,sales.pid);");
+	conn.commit();
 } catch(Exception e) {
   out.println(e.getMessage());
 } finally {

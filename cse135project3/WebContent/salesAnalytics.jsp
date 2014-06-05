@@ -234,7 +234,7 @@
 					matQuery+=" OR uid= "+firstCol[i];
 				}		
 			}
-			matQuery+=")";
+			matQuery+=") GROUP BY uid,pid";
 			System.out.println("STATEMENT prematrix: \n"+matQuery);
 			ResultSet alpha=null;
 			Statement m=conn.createStatement();
@@ -271,9 +271,11 @@
 				<%
 				for(int i=0;i<10;i++){
 					%>
-					<tr><%=theMartix[dino][i] %></tr>
+					<td><%=theMartix[dino][i] %></td>
 					<%
 				}
+				dino++;
+				%></tr><%
 			}
 
 
