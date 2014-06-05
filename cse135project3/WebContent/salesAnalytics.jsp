@@ -155,7 +155,10 @@
 				rsCols = colHeaders.executeQuery(query);
 				int k=0;
 				while(rsCols.next()) {
-					firstCol[k]=rsCols.getInt("id");
+					firstRow[k]=rsCols.getInt("id");
+					System.out.println("result set: "+rsCols.getInt("id"));
+					System.out.println("array: "+firstRow[k]);
+					k++;
 			%>
 			<th><%=rsCols.getString("name") %><br><%=rsCols.getInt("total") %></th>
 			<%
@@ -197,7 +200,7 @@
 			//gets rows user id
 			for(int i=1;i<=20;i++){
 				if(col.next()){
-					firstRow[i-1]=col.getInt("id");
+					firstCol[i-1]=col.getInt("id");
 				}
 			}
 			//rewins col to the start
@@ -215,8 +218,10 @@
 			}
 			matQuery+= "(TRUE ";
 			for(int i=0;i<10;i++){
-				if(firstRow[i]==0)
+				if(firstRow[i]==0){
+					System.out.println("why does it get here i= "+i+" array= "+firstRow[i]);
 					break;
+					}
 				else{
 					matQuery+=" OR pid= "+firstRow[i];
 				}		
