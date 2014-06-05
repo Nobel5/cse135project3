@@ -140,7 +140,7 @@
 			<th></th>
 			<%
 
-				String query = "SELECT products.name, SUM(subtotal) AS total"
+				String query = "SELECT products.name,products.id, SUM(subtotal) AS total"
 						+ " FROM precols RIGHT OUTER JOIN products ON productid=products.id";
 				if (!"All".equals(state)) {
 					query += " AND stateid="+sid;
@@ -166,10 +166,10 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT states.name, SUM(subtotal) AS total FROM states LEFT OUTER JOIN prerows on prerowsstates.sid=states.id";
+				preRows="SELECT states.name,users.id, SUM(subtotal) AS total FROM states LEFT OUTER JOIN prerows on prerowsstates.sid=states.id";
 			}
 			else{
-				preRows="SELECT users.name, SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
+				preRows="SELECT users.name, users.id,SUM(subtotal) AS total FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
 
 				
 			}
@@ -190,14 +190,14 @@
 			}
 			Statement fcol=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 			        ResultSet.CONCUR_READ_ONLY);
-			//System.out.println("STATEMENT preRows:\n"+preRows);
+			System.out.println("STATEMENT preRows:\n"+preRows);
 			ResultSet col=fcol.executeQuery(preRows);
 			
 			String martrix;
 			//gets rows user id
 			for(int i=1;i<=20;i++){
 				if(col.next()){
-					firstCol[i-1]=col.getInt("id");
+					firstRow[i-1]=col.getInt("id");
 				}
 			}
 			//rewins col to the start
@@ -211,25 +211,26 @@
 				
 			}
 			else{
-				matQuery+="SELECT uid,pid,SUM(subTotal) AS total FROM prematrix WHERE TRUE ";
+				matQuery+="SELECT uid,pid,SUM(subTotal) AS total FROM prematrix WHERE ";
 			}
 			matQuery+= "(TRUE ";
 			for(int i=0;i<10;i++){
 				if(firstRow[i]==0)
 					break;
 				else{
-					matQuery+="OR pid= "+firstRow[i];
+					matQuery+=" OR pid= "+firstRow[i];
 				}		
 			}
-			matQuery+=") AND (";
+			matQuery+=" ) AND ( TRUE";
 			for(int i=0;i<20;i++){
 				if(firstCol[i]==0)
 					break;
 				else{
-					matQuery+="OR uid= "+firstCol[i];
+					matQuery+=" OR uid= "+firstCol[i];
 				}		
 			}
 			matQuery+=")";
+			System.out.println("STATEMENT prematrix: \n"+matQuery);
 			ResultSet alpha=null;
 			Statement m=conn.createStatement();
 			alpha=m.executeQuery(matQuery);
