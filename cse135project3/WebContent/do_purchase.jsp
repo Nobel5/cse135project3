@@ -73,12 +73,22 @@ if(session.getAttribute("name")!=null)
 								updater.executeUpdate(precols);
 								precols = "INSERT INTO precols(stateid,productid,subtotal) SELECT "+sid+","+pid+","+total+" WHERE NOT EXISTS (SELECT 1 FROM precols WHERE stateid="+sid+" AND productid="+pid+")";
 								updater.execute(precols);
+								// update of the zero states
+								precols = "UPDATE precols SET subtotal=subtotal+"+total+" WHERE stateid="+0+" AND productid="+pid;
+								updater.executeUpdate(precols);
+								precols = "INSERT INTO precols(stateid,productid,subtotal) SELECT "+0+","+pid+","+total+" WHERE NOT EXISTS (SELECT 1 FROM precols WHERE stateid="+0+" AND productid="+pid+")";
+								updater.execute(precols);
 								System.out.println("updated precols");
 								// Update prerows
 								System.out.println("UPATING THE PREROWS");
 								String prerows = "UPDATE prerows SET subtotal=subtotal+"+total+" WHERE uid="+uid+" AND cid="+cid;
 								updater.executeUpdate(prerows);
 								prerows = "INSERT INTO prerows(uid,cid,subtotal) SELECT "+uid+","+cid+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prerows WHERE uid="+uid+" AND cid="+cid+")";
+								updater.executeUpdate(prerows);
+								//update of the zero rows
+								prerows = "UPDATE prerows SET subtotal=subtotal+"+total+" WHERE uid="+uid+" AND cid="+0;
+								updater.executeUpdate(prerows);
+								prerows = "INSERT INTO prerows(uid,cid,subtotal) SELECT "+uid+","+0+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prerows WHERE uid="+uid+" AND cid="+0+")";
 								updater.executeUpdate(prerows);
 								System.out.println("updated prerows");
 								// Update the Martix
