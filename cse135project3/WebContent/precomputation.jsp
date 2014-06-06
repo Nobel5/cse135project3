@@ -21,6 +21,7 @@ try {
 	
 	stmt.execute("DROP TABLE IF EXISTS precols");
 	stmt.execute("DROP TABLE IF EXISTS prerows");
+	stmt.execute("DROP TABLE IF EXISTS prerowsstates");
 	stmt.execute("DROP TABLE IF EXISTS prematrix");
 	
 	// Column headers
@@ -73,6 +74,25 @@ try {
 	stmt.execute(query);
 	conn.commit();
 
+	stmt.execute("CREATE TABLE prerowsstates(sid INTEGER, cid INTEGER, subtotal INTEGER)");
+	stmt.execute("INSERT INTO prerowsstates(sid,cid,subtotal) ("
+			+ "SELECT states.id AS sid"
+			+ ",products.cid AS cid"
+			+ ",SUM(sales.quantity*sales.price) AS subtotal"
+			+ " FROM users JOIN sales ON users.id=sales.uid JOIN products ON products.id=sales.pid JOIN categories ON products.cid=categories.id JOIN states ON users.state=states.name"
+			+ " GROUP BY sid, cid"
+			+ " ORDER BY sid)");
+	query = "INSERT INTO prerowsstates(sid,subtotal) ("
+			+ "SELECT states.id AS sid"
+			+ ",SUM(sales.quantity*sales.price) AS subtotal"
+			+ " FROM users JOIN sales ON users.id=sales.uid JOIN products ON products.id=sales.pid JOIN categories ON products.cid=categories.id JOIN states ON users.state=states.name"
+			+ " GROUP BY sid)";
+	System.out.println(query);
+	stmt.execute(query);
+	query = "UPDATE prerowsstates SET cid=0 WHERE cid IS NULL";
+	stmt.execute(query);
+	conn.commit();
+	
 	stmt.execute("CREATE TABLE prematrix(uid INTEGER,pid INTEGER,subtotal INTEGER)");
 	stmt.execute("INSERT INTO prematrix(uid,pid,subtotal) ("
 			+ "SELECT sales.uid,sales.pid,SUM(sales.quantity*sales.price) AS sub FROM sales GROUP BY sales.uid,sales.pid);");

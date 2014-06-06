@@ -172,12 +172,10 @@
 		// ROW HEADERS AND MATRIX
 			String preRows;
 			if(rowtype.equals("states")){
-				preRows="SELECT states.name,states.id, SUM(subtotal) AS total FROM (states LEFT OUTER JOIN users ON states.name=users.state) LEFT OUTER JOIN prerows ON users.id=prerows.uid";
+				preRows="SELECT states.name,states.id,subtotal FROM states LEFT OUTER JOIN prerowsstates ON prerowsstates.sid=states.id";
 			}
 			else{
-				preRows="SELECT users.name, users.id,subtotal FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
-
-				
+				preRows="SELECT users.name,users.id,subtotal FROM users LEFT OUTER JOIN prerows on prerows.uid=users.id";
 			}
 			if(category!=0){
 				preRows+=" AND cid="+category+" ";
@@ -192,7 +190,7 @@
 				preRows+=" WHERE users.state= \'"+state+"\' ";
 			}
 			if(rowtype.equals("states")){
-				preRows+= " GROUP BY states.id,subtotal ORDER BY subtotl DESC NULLS LAST LIMIT 20";
+				preRows+= " GROUP BY states.id,subtotal ORDER BY subtotal DESC NULLS LAST LIMIT 20";
 			}
 			else{
 				preRows+= " GROUP BY users.id,subtotal ORDER BY subtotal DESC NULLS LAST LIMIT 20";
