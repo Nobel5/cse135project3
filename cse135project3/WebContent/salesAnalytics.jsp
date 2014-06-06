@@ -214,43 +214,45 @@
 			int theMartix[][]=new int[20][10];
 			String matQuery="";
 			if(rowtype.equals("states")){
-				matQuery+="SELECT states.id,pid,sub"+
-			" FROM ( "+
-						" SELECT sales.uid,sales.pid,SUM(sales.quantity*sales.price) AS sub "+
-			" FROM sales GROUP BY sales.uid,sales.pid "+
-						" ) AS subquery "+
-			" JOIN users ON users.id=uid RIGHT OUTER JOIN states ON "+
-						" users.state=states.name WHERE";
-				
+				matQuery+="SELECT sid,pid,subtotal FROM prematrixstates WHERE ";
 			}
 			else{
 				matQuery+="SELECT uid,pid,subTotal FROM prematrix WHERE ";
 			}
-			matQuery+= "(TRUE ";
+			matQuery+= "( ";
 			for(int i=0;i<10;i++){
 				if(firstRow[i]==0){
 					System.out.println("why does it get here i= "+i+" array= "+firstRow[i]);
 					break;
 					}
+				else if(i==0){
+					matQuery+=" pid= "+firstRow[i];
+				}
 				else{
 					matQuery+=" OR pid= "+firstRow[i];
 				}		
 			}
-			matQuery+=" ) AND ( TRUE";
+			matQuery+=" ) AND ( ";
 			for(int i=0;i<20;i++){
 				if(firstCol[i]==0)
 					break;
+				else if(i==0){
+					if(!rowtype.equals("states"))
+						matQuery+="  uid= "+firstCol[i];
+						else
+							matQuery+=" sid= "+firstCol[i];
+				}
 				else{
 					if(!rowtype.equals("states"))
 					matQuery+=" OR uid= "+firstCol[i];
 					else
-						matQuery+=" OR states.id= "+firstCol[i];
+						matQuery+=" OR sid= "+firstCol[i];
 				}		
 			}
 			if(!rowtype.equals("states"))
 			matQuery+=") GROUP BY uid,pid,subtotal";
 			else
-				matQuery+=")";
+				matQuery+=") GROUP BY sid,pid,subtotal";
 			System.out.println("STATEMENT prematrix: \n"+matQuery);
 			ResultSet alpha=null;
 			Statement m=conn.createStatement();
@@ -277,7 +279,7 @@
 					}
 					}
 					else{
-						if(firstCol[i]==alpha.getInt("id")){
+						if(firstCol[i]==alpha.getInt("sid")){
 							t=i;
 						}
 					}
@@ -286,7 +288,7 @@
 				if(!rowtype.equals("states"))
 					theMartix[t][q]+=alpha.getInt("subtotal");
 				else
-					theMartix[t][q]=alpha.getInt("sub");
+					theMartix[t][q]=alpha.getInt("subtotal");
 				}
 			}
 			//creates the actul Table

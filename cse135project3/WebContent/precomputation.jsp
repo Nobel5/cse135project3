@@ -23,6 +23,7 @@ try {
 	stmt.execute("DROP TABLE IF EXISTS prerows");
 	stmt.execute("DROP TABLE IF EXISTS prerowsstates");
 	stmt.execute("DROP TABLE IF EXISTS prematrix");
+	stmt.execute("DROP TABLE IF EXISTS prematrixstates");
 	
 	// Column headers
 	stmt.execute("CREATE TABLE precols(stateid INTEGER,productid INTEGER,subtotal INTEGER)");
@@ -96,6 +97,11 @@ try {
 	stmt.execute("CREATE TABLE prematrix(uid INTEGER,pid INTEGER,subtotal INTEGER)");
 	stmt.execute("INSERT INTO prematrix(uid,pid,subtotal) ("
 			+ "SELECT sales.uid,sales.pid,SUM(sales.quantity*sales.price) AS sub FROM sales GROUP BY sales.uid,sales.pid);");
+	conn.commit();
+	
+	stmt.execute("CREATE TABLE prematrixstates(sid INTEGER,pid INTEGER,subtotal INTEGER)");
+	stmt.execute("INSERT INTO prematrixstates(sid,pid,subtotal) ("
+			+ "SELECT states.id,sales.pid,SUM(sales.quantity*sales.price) AS sub FROM sales JOIN users ON sales.uid=users.id JOIN states ON users.state=states.name GROUP BY states.id,sales.pid)");
 	conn.commit();
 	System.out.println("done");
 } catch(Exception e) {
