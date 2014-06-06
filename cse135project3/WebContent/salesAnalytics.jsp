@@ -242,6 +242,12 @@
 						else
 							matQuery+=" sid= "+firstCol[i];
 				}
+				else if(i==0){
+					if(!rowtype.equals("states"))
+						matQuery+="  uid= "+firstCol[i];
+						else
+							matQuery+=" sid= "+firstCol[i];
+				}
 				else{
 					if(!rowtype.equals("states"))
 					matQuery+=" OR uid= "+firstCol[i];
