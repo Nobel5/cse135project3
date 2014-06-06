@@ -226,20 +226,29 @@
 			else{
 				matQuery+="SELECT uid,pid,subTotal FROM prematrix WHERE ";
 			}
-			matQuery+= "(TRUE ";
+			matQuery+= "( ";
 			for(int i=0;i<10;i++){
 				if(firstRow[i]==0){
 					System.out.println("why does it get here i= "+i+" array= "+firstRow[i]);
 					break;
 					}
+				else if(i==0){
+					matQuery+=" pid= "+firstRow[i];
+				}
 				else{
 					matQuery+=" OR pid= "+firstRow[i];
 				}		
 			}
-			matQuery+=" ) AND ( TRUE";
+			matQuery+=" ) AND ( ";
 			for(int i=0;i<20;i++){
 				if(firstCol[i]==0)
 					break;
+				else if(i==0){
+					if(!rowtype.equals("states"))
+						matQuery+="  uid= "+firstCol[i];
+						else
+							matQuery+=" states.id= "+firstCol[i];
+				}
 				else{
 					if(!rowtype.equals("states"))
 					matQuery+=" OR uid= "+firstCol[i];
