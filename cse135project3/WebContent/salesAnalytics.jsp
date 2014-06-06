@@ -235,6 +235,7 @@
 			matQuery+=" ) AND ( ";
 			for(int i=0;i<20;i++){
 				if(firstCol[i]==0)
+					break;	
 					break;
 				else if(i==0){
 					if(!rowtype.equals("states"))
