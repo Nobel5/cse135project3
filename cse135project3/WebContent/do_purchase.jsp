@@ -93,14 +93,14 @@ if(session.getAttribute("name")!=null)
 								System.out.println("updated prerows");
 								//Update states rows
 								System.out.println("UPATING THE PREROWS");
-								String prerowsstates = "UPDATE prerowsstates SET subtotal=subtotal+"+total+" WHERE uid="+sid+" AND cid="+cid;
+								String prerowsstates = "UPDATE prerowsstates SET subtotal=subtotal+"+total+" WHERE sid="+sid+" AND cid="+cid;
 								updater.executeUpdate(prerows);
-								prerowsstates = "INSERT INTO prerowsstates(sid,cid,subtotal) SELECT "+sid+","+cid+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prerows WHERE uid="+sid+" AND cid="+cid+")";
+								prerowsstates = "INSERT INTO prerowsstates(sid,cid,subtotal) SELECT "+sid+","+cid+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prerowsstates WHERE uid="+sid+" AND cid="+cid+")";
 								updater.executeUpdate(prerowsstates);
 								//update of the zero states rows 
-								prerows = "UPDATE prerowsstates SET subtotal=subtotal+"+total+" WHERE uid="+sid+" AND cid="+0;
+								prerows = "UPDATE prerowsstates SET subtotal=subtotal+"+total+" WHERE sid="+sid+" AND cid="+0;
 								updater.executeUpdate(prerowsstates);
-								prerowsstates = "INSERT INTO prerowsstates(sid,cid,subtotal) SELECT "+sid+","+0+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prerows WHERE uid="+sid+" AND cid="+0+")";
+								prerowsstates = "INSERT INTO prerowsstates(sid,cid,subtotal) SELECT "+sid+","+0+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prerowsstates WHERE uid="+sid+" AND cid="+0+")";
 								updater.executeUpdate(prerowsstates);
 								System.out.println("updated prerowsstates");
 								// Update the Martix
@@ -110,6 +110,13 @@ if(session.getAttribute("name")!=null)
 								themartix = "INSERT INTO prematrix(uid,pid,subtotal) SELECT "+uid+","+pid+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prematrix WHERE uid="+uid+" AND pid="+pid+")";
 								updater.executeUpdate(themartix);
 								System.out.println("updated prematrix");
+								//Update the Matrix for states
+								System.out.println("UPDATING THE PREMATRIX");
+								String themartixstates = "UPDATE prematrixstates SET subtotal=subtotal+"+total+" WHERE sid="+sid+" AND pid="+pid;
+								updater.executeUpdate(themartixstates);
+								themartixstates = "INSERT INTO prematrix(sid,pid,subtotal) SELECT "+sid+","+pid+","+total+" WHERE NOT EXISTS (SELECT 1 FROM prematrixstates WHERE sid="+sid+" AND pid="+pid+")";
+								updater.executeUpdate(themartixstates);
+								System.out.println("updated prematrixstates");
 							}
 							stmt.execute(SQL);
 							conn.commit();
