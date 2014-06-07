@@ -103,6 +103,10 @@ try {
 	stmt.execute("INSERT INTO prematrixstates(sid,pid,subtotal) ("
 			+ "SELECT states.id,sales.pid,SUM(sales.quantity*sales.price) AS sub FROM sales JOIN users ON sales.uid=users.id JOIN states ON users.state=states.name GROUP BY states.id,sales.pid)");
 	conn.commit();
+	
+	stmt.execute("CREATE INDEX uidindex ON prematrix(uid)");
+	stmt.execute("CREATE INDEX pidindex ON prematrix(pid)");
+	conn.commit();
 	System.out.println("done");
 } catch(Exception e) {
   out.println(e.getMessage());
