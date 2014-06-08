@@ -105,7 +105,7 @@ try {
 	conn.commit();
 	
 	stmt.execute("CREATE INDEX uidindex ON prematrix(uid)");
-	stmt.execute("CREATE INDEX pidindex ON prematrix(pid)");
+	//stmt.execute("CREATE INDEX pidindex ON prematrix(pid)");
 	conn.commit();
 	System.out.println("done");
 } catch(Exception e) {
